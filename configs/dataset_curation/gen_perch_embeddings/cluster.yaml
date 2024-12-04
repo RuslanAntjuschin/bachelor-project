@@ -1,0 +1,23 @@
+defaults:
+  - _self_
+
+datamodule:
+  _target_: birdset.datamodule.pretrain_datamodule.PretrainDataModule
+  dataset:
+    data_dir: /mnt/stud/work/rantjuschin/data_birdset/XCL
+    hf_path: DBD-research-group/BirdSet
+    hf_name: XCL
+    classlimit: null
+    eventlimit: null
+    task: multilabel
+    subset: null
+    sampling_rate: 32000
+    n_workers: 3
+    val_split: null
+    class_weights_loss: null
+    class_weights_sampler: null
+    seed: 42
+
+sample_length: 5
+sample_padding: True
+embeddings_save_path: /mnt/stud/work/rantjuschin/bachelor_projekt/datasets/XCL/perch_embeddings/

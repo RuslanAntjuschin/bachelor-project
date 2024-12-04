@@ -1,0 +1,20 @@
+defaults:
+  - _self_
+
+dataset:
+  data_dir: /home/rantjuschin/data_birdset/HSN
+  hf_path: DBD-research-group/BirdSet
+  hf_name: HSN 
+  sampling_rate: 32000
+
+mapper:
+  _target_: birdset.datamodule.components.event_mapping.XCEventMapping
+  biggest_cluster: True
+  no_call: False
+
+extract_events: True
+extractable_splits: ["train"]
+removable_columns: ["audio"]
+sample_length: 5
+sample_padding: True
+indexed_save_path: /home/rantjuschin/bachelor_projekt/datasets/indexed/HSN/

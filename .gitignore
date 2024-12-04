@@ -1,3 +1,9 @@
+# custom files
+datasets/
+models/
+outputs/
+src/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
