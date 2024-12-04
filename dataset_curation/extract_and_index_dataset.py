@@ -16,8 +16,8 @@ root = pyrootutils.setup_root(
 
 _HYDRA_PARAMS = {
     "version_base":None,
-    "config_path": str(root / "configs/dataset_curation/index_dataset/HSN/"),
-    "config_name": "local.yaml"
+    "config_path": str(root / "configs/dataset_curation/index_dataset/"),
+    "config_name": "HSN_local.yaml"
 }
 
 @hydra.main(**_HYDRA_PARAMS)

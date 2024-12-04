@@ -17,4 +17,4 @@ extractable_splits: ["train"]
 removable_columns: ["audio"]
 sample_length: 5
 sample_padding: True
-indexed_save_path: /home/rantjuschin/bachelor_projekt/datasets/indexed/HSN/
+indexed_save_path: /home/rantjuschin/bachelor-project/datasets/indexed/HSN/
