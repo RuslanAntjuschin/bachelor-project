@@ -1,0 +1,14 @@
+defaults:
+  - _self_
+
+dataset:
+  data_dir: /mnt/stud/work/rantjuschin/datasets/indexed/XCL/
+  hf_path: DBD-research-group/BirdSet
+  hf_name: XCL 
+  sampling_rate: 32_000
+  num_classes: 9_735
+
+sample_length: 5
+sample_padding: True
+embeddings_save_path: /mnt/stud/work/rantjuschin/datasets/embedded/perch/XCL
+

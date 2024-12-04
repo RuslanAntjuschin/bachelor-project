@@ -1,0 +1,13 @@
+defaults:
+  - _self_
+
+dataset:
+  data_dir: /home/rantjuschin/bachelor-project/datasets/indexed/HSN
+  hf_path: DBD-research-group/BirdSet
+  hf_name: HSN 
+  sampling_rate: 32000
+  num_classes: 21
+
+sample_length: 5
+sample_padding: True
+embeddings_save_path: /home/rantjuschin/bachelor-project/datasets/embedded/perch/HSN
