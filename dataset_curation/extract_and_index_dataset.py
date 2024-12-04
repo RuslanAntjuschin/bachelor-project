@@ -79,7 +79,7 @@ def extract_and_index_dataset(cfg):
     log.info("Indexing Data")
     indexed_dataset = dataset.map(lambda sample, idx: {"index": idx}, with_indices=True)
 
-    # save embeddings
+    # save indeces
     log.info(f"Saving data to {cfg.indexed_save_path}")
     if isinstance(indexed_dataset, DatasetDict):
         indexed_dataset.save_to_disk(dataset_dict_path=cfg.indexed_save_path)
