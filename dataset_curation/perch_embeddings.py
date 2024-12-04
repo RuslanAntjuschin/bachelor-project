@@ -51,9 +51,9 @@ def generate_perch_embeddings(cfg):
     # save embeddings
     log.info(f"Saving data to {cfg.indexed_save_path}")
     if isinstance(embeddings_set, DatasetDict):
-        embeddings_set.save_to_disk(dataset_dict_path=cfg.indexed_save_path)
+        embeddings_set.save_to_disk(dataset_dict_path=cfg.embeddings_save_path)
     elif isinstance(embeddings_set, Dataset):
-        embeddings_set.save_to_disk(dataset_path=cfg.indexed_save_path)
+        embeddings_set.save_to_disk(dataset_path=cfg.embeddings_save_path)
     else:
         log.error(f"Saving of {embeddings_set.__class__} is not supported") 
 

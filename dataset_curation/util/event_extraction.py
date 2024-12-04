@@ -63,6 +63,19 @@ def load_audio(sample, min_len: float, max_len: float, sampling_rate: int, pad_t
         start = int(sample["start_time"] * sr)
         end = int(sample["end_time"] * sr)
 
+        # cut audio if it's over max_len
+        if (end - start) > max_len:
+            to_cut = (end - start) - max_len
+            equal_cut = to_cut // 2
+
+            start += equal_cut
+            end -= equal_cut
+
+            # possible cutting needed due to integer division
+            cut_left = (end - start) - max_len
+            end -= cut_left
+
+
     audio, sr = sf.read(path, start=start, stop=end, dtype="float32")
 
     if audio.ndim != 1:
@@ -72,7 +85,7 @@ def load_audio(sample, min_len: float, max_len: float, sampling_rate: int, pad_t
         audio = librosa.resample(audio, orig_sr=sr, target_sr=sampling_rate)
         sr = sampling_rate
 
-    if (total_duration < min_len) and pad_to_min_length:
+    if (((end - start) < min_len) or total_duration < min_len) and pad_to_min_length:
         audio = pad_audio(audio, sr, original_min_len)
 
     return audio, sr
@@ -98,5 +111,4 @@ def pad_audio(audio, sample_rate: int, wanted_length: float):
     # make sure it is padded to the right size
     if left_pad + right_pad != len_to_pad:
         right_pad = right_pad + (len_to_pad - (left_pad + right_pad))
-
-    return np.pad(audio, [(left_pad, right_pad)], mode="mean")
+    return np.pad(audio, [(left_pad, right_pad)], mode=("mean" if audio.size != 0 else "empty"))
