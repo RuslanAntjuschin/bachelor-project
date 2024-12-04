@@ -49,7 +49,7 @@ def generate_perch_embeddings(cfg):
     embeddings_set.save_to_disk(dataset_dict_path=cfg.embeddings_save_path)
 
     # save embeddings
-    log.info(f"Saving data to {cfg.indexed_save_path}")
+    log.info(f"Saving data to {cfg.embeddings_save_path}")
     if isinstance(embeddings_set, DatasetDict):
         embeddings_set.save_to_disk(dataset_dict_path=cfg.embeddings_save_path)
     elif isinstance(embeddings_set, Dataset):
