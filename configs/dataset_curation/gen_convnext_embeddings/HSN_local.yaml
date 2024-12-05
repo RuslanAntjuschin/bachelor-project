@@ -1,0 +1,26 @@
+defaults:
+  - _self_
+
+dataset:
+  data_dir: /home/rantjuschin/bachelor-project/datasets/indexed/HSN
+  hf_path: DBD-research-group/BirdSet
+  hf_name: HSN 
+  sampling_rate: 32000
+  num_classes: 21
+
+transforms:
+  model_type: "vision"
+  max_length: 5
+  preprocessor:
+    n_fft: 1024
+    hop_length: 320
+    power: 2.0
+    mel_scale:
+      n_mels: 128
+      n_stft: 513
+    mean: -4.268
+    std: 4.569
+
+sample_length: 5
+sample_padding: True
+embeddings_save_path: /home/rantjuschin/bachelor-project/datasets/embedded/convnext/HSN
