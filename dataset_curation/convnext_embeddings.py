@@ -90,7 +90,7 @@ def generate_convnext_embeddings(cfg):
         return output.logits.squeeze().detach()
 
     log.info("Generating and mapping ConvNeXT embeddings")
-    embeddings_set = dataset.map(lambda sample: {"audio": get_embeddings(sample)}, remove_columns=["filepath"], keep_in_memory=True)
+    embeddings_set = dataset.map(lambda sample: {"audio": get_embeddings(sample)}, remove_columns=["filepath"])
 
     # save embeddings
     log.info(f"Saving data to {cfg.embeddings_save_path}")

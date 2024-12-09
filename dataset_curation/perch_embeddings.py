@@ -43,7 +43,7 @@ def generate_perch_embeddings(cfg):
         return perch.get_embeddings(audio)[0]
 
     log.info("Generating and mapping Perch embeddings")
-    embeddings_set = dataset.map(lambda sample: {"audio": get_embeddings(sample)}, remove_columns=["filepath"], keep_in_memory=True)
+    embeddings_set = dataset.map(lambda sample: {"audio": get_embeddings(sample)}, remove_columns=["filepath"])
 
     # save embeddings
     embeddings_set.save_to_disk(dataset_dict_path=cfg.embeddings_save_path)
