@@ -6,7 +6,7 @@ dataset:
   hf_path: DBD-research-group/BirdSet
   hf_name: XCL 
   sampling_rate: 32_000
-  num_classes: 9_735
+  num_classes: 9_736
 
 transforms:
   model_type: "vision"
