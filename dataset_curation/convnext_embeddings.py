@@ -32,6 +32,9 @@ _HYDRA_PARAMS = {
 @hydra.main(**_HYDRA_PARAMS)
 def generate_convnext_embeddings(cfg):
     log.info("Using config: \n%s", OmegaConf.to_yaml(cfg))
+
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    log.info(f"Using device {device}")
     
     # load data
     dataset = load_from_disk(cfg.dataset.data_dir)
@@ -54,6 +57,9 @@ def generate_convnext_embeddings(cfg):
             return input
     
     model.classifier = Identity()
+
+    log.info(f"Moving model to {device}")
+    model = model.to(device)
 
     # convert samples to spectrogramms
     log.info("Configuring transforms")
@@ -85,12 +91,14 @@ def generate_convnext_embeddings(cfg):
     def get_embeddings(sample):
         audio, _ = load_audio(sample, min_len=cfg.sample_length, max_len=cfg.sample_length, sampling_rate=cfg.dataset.sampling_rate, pad_to_min_length=cfg.sample_padding)
         audio = torch.from_numpy(audio).unsqueeze(0).unsqueeze(0)
-        spectogram = transformer._preprocess(audio, None)
+        spectogram = transformer._preprocess(audio, None).to(device)
         output = model.forward(spectogram)
         return output.logits.squeeze().detach()
 
     log.info("Generating and mapping ConvNeXT embeddings")
-    embeddings_set = dataset.map(lambda sample: {"audio": get_embeddings(sample)}, remove_columns=["filepath"])
+    embeddings_set = dataset.map(
+        lambda sample: {"audio": get_embeddings(sample)},
+        remove_columns=["filepath"])
 
     # save embeddings
     log.info(f"Saving data to {cfg.embeddings_save_path}")
