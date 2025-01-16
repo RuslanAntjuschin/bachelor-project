@@ -2,6 +2,8 @@ from birdset.datamodule.components.transforms import BirdSetTransformsWrapper
 from birdset.datamodule.components.resize import Resizer
 from birdset.datamodule.components.augmentations import PowerToDB
 from birdset.datamodule.components.transforms import PreprocessingConfig
+from birdset.datamodule.components.event_decoding import EventDecoding
+from birdset.datamodule.components.feature_extraction import DefaultFeatureExtractor
 import birdset.utils as birdutils
 from datasets import Dataset, DatasetDict, load_from_disk
 from omegaconf import OmegaConf
@@ -61,6 +63,23 @@ def generate_convnext_embeddings(cfg):
     log.info(f"Moving model to {device}")
     model = model.to(device)
 
+    # configure decoding and padding
+    log.info("Configure Decoder and Padding")
+    decoder = EventDecoding(
+    min_len=0,
+    max_len=cfg.sample_length,
+    sampling_rate=cfg.dataset.sampling_rate,
+    extension_time=cfg.sample_length,
+    extracted_interval=cfg.sample_length
+    )
+    
+    extractor = DefaultFeatureExtractor(
+        feature_size=1,
+        sampling_rate=cfg.dataset.sampling_rate,
+        padding_value=cfg.padding_value,
+        return_attention_mask=False
+    )
+
     # convert samples to spectrogramms
     log.info("Configuring transforms")
     transformer = BirdSetTransformsWrapper(
@@ -88,17 +107,20 @@ def generate_convnext_embeddings(cfg):
         )
 
     # map embeddings
-    def get_embeddings(sample):
-        audio, _ = load_audio(sample, min_len=cfg.sample_length, max_len=cfg.sample_length, sampling_rate=cfg.dataset.sampling_rate, pad_to_min_length=cfg.sample_padding)
-        audio = torch.from_numpy(audio).unsqueeze(0).unsqueeze(0)
-        spectogram = transformer._preprocess(audio, None).to(device)
+    def get_embeddings(batch):
+        decoded_batch = decoder(batch)
+        decoded_batch["audio"] = [audio_attribute["array"] for audio_attribute in decoded_batch["audio"]]
+        samples = extractor(decoded_batch["audio"], padding="max_length", max_length=cfg.sample_length*cfg.dataset.sampling_rate, truncation=True, return_attention_mask=False)
+        samples = samples["input_values"].unsqueeze(1)
+        spectogram = transformer._preprocess(samples, None).to(device)
         output = model.forward(spectogram)
-        return output.logits.squeeze().detach()
+        embeddings = output.logits.squeeze().detach()
+        for idx in range(embeddings.shape[0]):
+            decoded_batch["audio"][idx] = embeddings[idx]
+        return decoded_batch
 
     log.info("Generating and mapping ConvNeXT embeddings")
-    embeddings_set = dataset.map(
-        lambda sample: {"audio": get_embeddings(sample)},
-        remove_columns=["filepath"])
+    embeddings_set = dataset.map(get_embeddings, remove_columns=["filepath"], batched=True, batch_size=cfg.batch_size)
 
     # save embeddings
     log.info(f"Saving data to {cfg.embeddings_save_path}")

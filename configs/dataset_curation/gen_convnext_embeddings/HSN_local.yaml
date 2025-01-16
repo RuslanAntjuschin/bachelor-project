@@ -22,5 +22,6 @@ transforms:
     std: 4.569
 
 sample_length: 5
-sample_padding: True
+padding_value: 0.0
+batch_size: 8
 embeddings_save_path: /home/rantjuschin/bachelor-project/datasets/embedded/convnext/HSN

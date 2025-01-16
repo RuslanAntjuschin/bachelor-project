@@ -1,4 +1,6 @@
 from birdset.modules.models.perch import PerchModel
+from birdset.datamodule.components.event_decoding import EventDecoding
+from birdset.datamodule.components.feature_extraction import DefaultFeatureExtractor
 import birdset.utils as birdutils
 from datasets import Dataset, DatasetDict, load_from_disk
 import hydra
@@ -37,13 +39,35 @@ def generate_perch_embeddings(cfg):
         tfhub_version=""
     )
 
+    # configure decoding and padding
+    log.info("Configure Decoder and Padding")
+    decoder = EventDecoding(
+    min_len=0,
+    max_len=cfg.sample_length,
+    sampling_rate=cfg.dataset.sampling_rate,
+    extension_time=cfg.sample_length,
+    extracted_interval=cfg.sample_length
+    )
+    
+    extractor = DefaultFeatureExtractor(
+        feature_size=1,
+        sampling_rate=cfg.dataset.sampling_rate,
+        padding_value=cfg.padding_value,
+        return_attention_mask=False
+    )
+
+
     # map embeddings
-    def get_embeddings(sample):
-        audio, _ = load_audio(sample, min_len=cfg.sample_length, max_len=cfg.sample_length, sampling_rate=cfg.dataset.sampling_rate, pad_to_min_length=cfg.sample_padding)
-        return perch.get_embeddings(audio)[0]
+    def get_embeddings(batch):
+        decoded_batch = decoder(batch)
+        decoded_batch["audio"] = [audio_attribute["array"] for audio_attribute in decoded_batch["audio"]]
+        samples = extractor(decoded_batch["audio"], padding="max_length", max_length=cfg.sample_length*cfg.dataset.sampling_rate, truncation=True, return_attention_mask=False)
+        for b_idx in range(len(samples["input_values"])):
+            decoded_batch["audio"][b_idx] = perch.get_embeddings(samples["input_values"][b_idx])[0]
+        return decoded_batch
 
     log.info("Generating and mapping Perch embeddings")
-    embeddings_set = dataset.map(lambda sample: {"audio": get_embeddings(sample)}, remove_columns=["filepath"])
+    embeddings_set = dataset.map(get_embeddings, remove_columns=["filepath"], batched=True, batch_size=cfg.batch_size)
 
     # save embeddings
     embeddings_set.save_to_disk(dataset_dict_path=cfg.embeddings_save_path)

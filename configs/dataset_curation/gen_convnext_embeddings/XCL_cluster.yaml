@@ -24,6 +24,7 @@ transforms:
     #std: 12.911 # Standard deviation of XCM: 12.911 ; Standard deviation of XCL: 13.098
 
 sample_length: 5
-sample_padding: True
+padding_value: 0.0
+batch_size: 32
 embeddings_save_path: /mnt/stud/work/rantjuschin/datasets/embedded/convnext/XCL
 

@@ -9,6 +9,7 @@ dataset:
   num_classes: 9_736
 
 sample_length: 5
-sample_padding: True
+padding_value: 0
+batch_size: 32
 embeddings_save_path: /mnt/stud/work/rantjuschin/datasets/embedded/perch/XCL
 
